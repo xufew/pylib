@@ -37,7 +37,6 @@ def set_param(inputDic):
         if paramName not in params:
             raise Exception('有不存在的变量')
     params.update(inputDic)
-    print(params)
     return params
 
 
@@ -50,12 +49,13 @@ def cv(trainX, trainY, params, verbose_eval=True, nfold=5):
             label=trainY,
             free_raw_data=False
             )
-    lgb.cv(
+    evalDic = lgb.cv(
             params,
             trainData,
             verbose_eval=verbose_eval,
             nfold=nfold
             )
+    return evalDic
 
 
 def train(trainX, trainY, params, modelSavePath, verbose_eval=True):
