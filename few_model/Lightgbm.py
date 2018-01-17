@@ -29,8 +29,8 @@ def set_param(inputDic):
             'metric': ['auc', 'binary_logloss'],
             'verbosity': 0,
             'num_threads': 4,
-            'feval': None,                          # 定义评估函数
-            'fobj': None,                           # 定义目标函数
+            # 'feval': None,                          # 定义评估函数
+            # 'fobj': None,                           # 定义目标函数
             'device': 'cpu',
             }
     for paramName in inputDic:
