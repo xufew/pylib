@@ -23,6 +23,7 @@ def set_param(inputDic):
             'bagging_fraction': 1,                  # 按百分比选数据
             'lambda_l1': 0,                         # l1 regularization
             'lambda_l2': 0,                         # l2 regularization
+            'scale_pos_weight': 1,                  # 1所占的权重,2分类问题中
             'zero_as_missing': False,
             'boosting': 'gbdt',
             'application': 'binary',                # loss种类
@@ -58,7 +59,7 @@ def cv(trainX, trainY, params, verbose_eval=True, nfold=5):
     return evalDic
 
 
-def train(trainX, trainY, params, modelSavePath, verbose_eval=True):
+def train(trainX, trainY, params, modelSavePath='./tmp_model.pkl', verbose_eval=True):
     '''
     训练
     '''
