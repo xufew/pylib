@@ -3,9 +3,13 @@
 # author: LONGFEI XU
 # Try your best
 # ============
+import json
 import pickle
+import itertools
+import datetime
 
 import xgboost as xgb
+import numpy as np
 import pandas as pd
 
 
@@ -25,14 +29,16 @@ class Xgboost():
                 'lambda': 1,
                 'eta': 0.3,
                 'scale_pos_weight': 1,
+                'base_score': 0.5,
                 'objective': 'binary:logistic',
                 'eval_metric': 'auc',
+                'reg_lambda': 1,
                 'nthread': 4,
                 'silent': 1,
                 'num_roud': 500,
                 'nfold': 10,
                 'feval': None,
-                'naData': -999,
+                'naData': -99999,
                 }
         for paramName in inputDic:
             if paramName not in param:
@@ -57,7 +63,7 @@ class Xgboost():
         num_roud = self.param['num_roud']
         nfold = self.param['nfold']
         feval = self.param['feval']
-        xgb.cv(
+        value = xgb.cv(
                 self.param,
                 dtrain,
                 num_roud,
@@ -65,6 +71,49 @@ class Xgboost():
                 verbose_eval=True,
                 feval=feval
                 )
+        return value
+
+    def line_search(
+            self, trainX, trainY, searchDic={}, outPath='./tmp_search'
+            ):
+        '''
+        进行最佳参数的搜索
+        '''
+        if len(searchDic) == 0:
+            searchDic = {
+                    'eta': np.linspace(0.001, 0.2, 20),
+                    'max_depth': list(range(3, 10)),
+                    'subsample': np.linspace(0.1, 1, 10),
+                    'col_sample_bytree': np.linspace(0.1, 1, 10),
+                    'min_child_weight': list(range(1, 50, 5)),
+                    'reg_lambda': np.linspace(1, 50, 10),
+                    'num_roud': [2000],
+                    'objective': ['reg:linear', 'binary:logistic'],
+                    }
+        searchNameList = list(searchDic.keys())
+        searchValueList = []
+        for featureName in searchNameList:
+            searchValueList.append(searchDic[featureName])
+        searchList = list(itertools.product(*tuple(searchValueList)))
+        print(len(searchList))
+        #
+        for valueSet in searchList:
+            useDic = {}
+            for i, value in enumerate(valueSet):
+                useDic[searchNameList[i]] = value
+            self.param = self.set_param(useDic)
+            result = self.cv(trainX, trainY)
+            maxValue = result['test-auc-mean'].max()
+            with open(outPath, 'a') as fileWriter:
+                fileWriter.write(
+                        '{}\t{}\t{}\n'.format(
+                            datetime.datetime.now().strftime(
+                                '%Y.%m.%d-%H:%M:%S'
+                                ),
+                            json.dumps(useDic),
+                            maxValue
+                            )
+                        )
 
     def train(self, trainX, trainY, modelSavePath='./tmp_model.pkl'):
         '''
