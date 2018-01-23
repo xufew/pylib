@@ -23,6 +23,7 @@ class LR():
                 max_iter=self.param['max_iter'],
                 multi_class=self.param['multi_class'],
                 n_jobs=self.param['n_jobs'],
+                verbose=self.param['verbose'],
                 )
 
     def set_param(self, inputDic):
