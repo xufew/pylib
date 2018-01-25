@@ -4,7 +4,11 @@
 # Try your best
 # ============
 import pickle
+import itertools
+import json
+import datetime
 
+import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import KFold, cross_val_score
@@ -13,21 +17,6 @@ from sklearn.model_selection import KFold, cross_val_score
 class RF():
     def __init__(self, inputDic):
         self.param = self.set_param(inputDic)
-        print(self.param)
-        self.model = RandomForestClassifier(
-                n_estimators=self.param['n_estimators'],
-                criterion=self.param['criterion'],
-                max_features=self.param['max_features'],
-                max_depth=self.param['max_depth'],
-                min_samples_split=self.param['min_samples_split'],
-                min_samples_leaf=self.param['min_samples_leaf'],
-                min_weight_fraction_leaf=self.param[
-                    'min_weight_fraction_leaf'
-                    ],
-                n_jobs=self.param['n_jobs'],
-                verbose=self.param['verbose'],
-                class_weight=self.param['class_weight'],
-                )
 
     def set_param(self, inputDic):
         '''
@@ -52,6 +41,21 @@ class RF():
             if paramName not in params:
                 raise Exception('有不存在的变量')
         params.update(inputDic)
+        self.param = params
+        self.model = RandomForestClassifier(
+                n_estimators=self.param['n_estimators'],
+                criterion=self.param['criterion'],
+                max_features=self.param['max_features'],
+                max_depth=self.param['max_depth'],
+                min_samples_split=self.param['min_samples_split'],
+                min_samples_leaf=self.param['min_samples_leaf'],
+                min_weight_fraction_leaf=self.param[
+                    'min_weight_fraction_leaf'
+                    ],
+                n_jobs=self.param['n_jobs'],
+                verbose=self.param['verbose'],
+                class_weight=self.param['class_weight'],
+                )
         return params
 
     def cv(self, trainX, trainY):
@@ -69,6 +73,45 @@ class RF():
                 )
         print(value)
         print(sum(value)/len(value))
+        return sum(value)/len(value)
+
+    def line_search(
+            self, trainX, trainY, searchDic={}, outPath='./tmp_search'
+            ):
+        '''
+        进行最佳参数的搜索
+        '''
+        if len(searchDic) == 0:
+            searchDic = {
+                    'min_samples_split': list(range(2, 20, 1)),
+                    'min_samples_leaf': list(range(2, 20, 1)),
+                    'n_estimators': [200],
+                    }
+        searchNameList = list(searchDic.keys())
+        searchValueList = []
+        for featureName in searchNameList:
+            searchValueList.append(searchDic[featureName])
+        searchList = list(itertools.product(*tuple(searchValueList)))
+        print(len(searchList))
+        #
+        for valueSet in searchList:
+            useDic = {}
+            for i, value in enumerate(valueSet):
+                useDic[searchNameList[i]] = value
+            print(useDic)
+            self.param = self.set_param(useDic)
+            result = self.cv(trainX, trainY)
+            maxValue = result
+            with open(outPath, 'a') as fileWriter:
+                fileWriter.write(
+                        '{}\t{}\t{}\n'.format(
+                            datetime.datetime.now().strftime(
+                                '%Y.%m.%d-%H:%M:%S'
+                                ),
+                            json.dumps(useDic),
+                            maxValue
+                            )
+                        )
 
     def train(self, trainX, trainY, modelSavePath='./tmp_model.pkl'):
         '''
