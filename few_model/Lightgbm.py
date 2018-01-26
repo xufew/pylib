@@ -29,6 +29,7 @@ class Lightgbm():
                 'min_data_in_leaf': 20,                 # minimal number of data in one leaf
                 'feature_fraction': 1,                  # 按百分比选feature
                 'bagging_fraction': 1,                  # 按百分比选数据
+                'bagging_freq': 0,                      # 多少次迭代进行一次bagging
                 'lambda_l1': 0,                         # l1 regularization
                 'lambda_l2': 0,                         # l2 regularization
                 'scale_pos_weight': 1,                  # 1所占的权重,2分类问题中

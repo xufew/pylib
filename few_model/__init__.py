@@ -12,3 +12,4 @@ from .LR import LR
 from .RF import RF
 from .ExtraTree import ExtraTree
 from .AdaBoost import AdaBoost
+from .GBDT import GBDT
