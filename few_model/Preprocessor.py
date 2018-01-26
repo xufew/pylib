@@ -10,19 +10,19 @@ import numpy as np
 from sklearn import preprocessing
 
 
-def one_hot(processDic, inputString):
+def one_hot(processDic, inputString, sep=','):
     '''
     根据传入的编码顺序，和需要编码的字符，进行one_hot转换
     processDic = {'xxx':0, 'xxxx':1}
     '''
     totalLen = len(processDic)
-    initList = [0]*totalLen
+    initList = ['0']*totalLen
     if inputString in processDic:
-        initList[processDic[inputString]] = 1
-    return initList
+        initList[processDic[inputString]] = '1'
+    return sep.join(initList)
 
 
-def get_one_hot_name(processDic, addName=''):
+def get_one_hot_name(processDic, addName='', sep=','):
     '''
     根据顺序获取one_hot的命名
     '''
@@ -30,7 +30,7 @@ def get_one_hot_name(processDic, addName=''):
     initList = ['']*totalLen
     for name in processDic:
         initList[processDic[name]] = '{}{}'.format(addName, name)
-    return initList
+    return sep.join(initList)
 
 
 class NaProducer:

@@ -10,3 +10,5 @@ from .Lightgbm import Lightgbm
 from .Xgboost import Xgboost
 from .LR import LR
 from .RF import RF
+from .ExtraTree import ExtraTree
+from .AdaBoost import AdaBoost

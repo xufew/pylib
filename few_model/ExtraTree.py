@@ -9,11 +9,11 @@ import json
 import datetime
 
 import pandas as pd
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import ExtraTreesClassifier
 from sklearn.model_selection import KFold, cross_val_score
 
 
-class RF():
+class ExtraTree():
     def __init__(self, inputDic):
         self.param = self.set_param(inputDic)
 
@@ -24,8 +24,8 @@ class RF():
         params = {
                 'n_estimators': 10,
                 'criterion': 'gini',
-                'max_features': 'auto',
                 'max_depth': None,
+                'max_features': 'auto',
                 'min_samples_split': 2,
                 'min_samples_leaf': 1,
                 'min_weight_fraction_leaf': 0,
@@ -41,11 +41,11 @@ class RF():
                 raise Exception('有不存在的变量')
         params.update(inputDic)
         self.param = params
-        self.model = RandomForestClassifier(
+        self.model = ExtraTreesClassifier(
                 n_estimators=self.param['n_estimators'],
                 criterion=self.param['criterion'],
-                max_features=self.param['max_features'],
                 max_depth=self.param['max_depth'],
+                max_features=self.param['max_features'],
                 min_samples_split=self.param['min_samples_split'],
                 min_samples_leaf=self.param['min_samples_leaf'],
                 min_weight_fraction_leaf=self.param[

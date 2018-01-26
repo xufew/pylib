@@ -8,12 +8,13 @@ import itertools
 import json
 import datetime
 
+import numpy as np
 import pandas as pd
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import AdaBoostClassifier
 from sklearn.model_selection import KFold, cross_val_score
 
 
-class RF():
+class AdaBoost():
     def __init__(self, inputDic):
         self.param = self.set_param(inputDic)
 
@@ -22,17 +23,10 @@ class RF():
         涉及的变量
         '''
         params = {
-                'n_estimators': 10,
-                'criterion': 'gini',
-                'max_features': 'auto',
-                'max_depth': None,
-                'min_samples_split': 2,
-                'min_samples_leaf': 1,
-                'min_weight_fraction_leaf': 0,
-                'n_jobs': 1,
+                'n_estimators': 50,
+                'learning_rate': 1,
+                'algorithm': 'SAMME.R',
                 'n_jobs_cv': 1,
-                'verbose': 1,
-                'class_weight': 'balanced',
                 'nfold': 5,
                 'scoring': 'roc_auc',
                 }
@@ -41,19 +35,10 @@ class RF():
                 raise Exception('有不存在的变量')
         params.update(inputDic)
         self.param = params
-        self.model = RandomForestClassifier(
+        self.model = AdaBoostClassifier(
                 n_estimators=self.param['n_estimators'],
-                criterion=self.param['criterion'],
-                max_features=self.param['max_features'],
-                max_depth=self.param['max_depth'],
-                min_samples_split=self.param['min_samples_split'],
-                min_samples_leaf=self.param['min_samples_leaf'],
-                min_weight_fraction_leaf=self.param[
-                    'min_weight_fraction_leaf'
-                    ],
-                n_jobs=self.param['n_jobs'],
-                verbose=self.param['verbose'],
-                class_weight=self.param['class_weight'],
+                learning_rate=self.param['learning_rate'],
+                algorithm=self.param['algorithm'],
                 )
         return params
 
@@ -82,9 +67,8 @@ class RF():
         '''
         if len(searchDic) == 0:
             searchDic = {
-                    'min_samples_split': list(range(2, 20, 1)),
-                    'min_samples_leaf': list(range(2, 20, 1)),
-                    'n_estimators': [200],
+                    'n_estimators': list(range(50, 400, 20)),
+                    'learning_rate': np.linspace(0.1, 1, 10),
                     }
         searchNameList = list(searchDic.keys())
         searchValueList = []
