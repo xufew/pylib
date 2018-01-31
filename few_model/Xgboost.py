@@ -50,6 +50,8 @@ class Xgboost():
         '''
         交叉验证
         '''
+        featureName = list(trainData.columns)
+        trainData.columns = [str(i) for i in range(len(featureName))]
         trainData = trainData.fillna(
                 self.param['naData']
                 )
@@ -119,6 +121,8 @@ class Xgboost():
         '''
         对模型进行训练
         '''
+        featureName = list(trainX.columns)
+        trainX.columns = [str(i) for i in range(len(featureName))]
         trainX = trainX.fillna(
                 self.param['naData']
                 )
@@ -139,8 +143,10 @@ class Xgboost():
                 evallist,
                 feval=feval
                 )
+        self.model.featureName = featureName
         featureImportance = self._feature_importance(self.model)
         print(featureImportance)
+        self.model.featureIm = featureImportance
         # # 模型储存
         with open(modelSavePath, 'wb') as f:
             pickle.dump(self.model, f)
@@ -151,7 +157,7 @@ class Xgboost():
         获取gbdt训练的重要性
         '''
         featureDic = gbdtModel.get_fscore()
-        featureSeries = pd.Series(featureDic)
+        featureSeries = pd.Series(featureDic, self.model.featureName)
         featureSeries.sort_values(ascending=False, inplace=True)
         return featureSeries
 
@@ -160,6 +166,8 @@ class Xgboost():
         预测
         '''
         naData = self.param['naData']
+        testX = testX.loc[:, gbdtModel.featureName]
+        testX.columns = [str(i) for i in range(len(gbdtModel.featureName))]
         testX = testX.fillna(naData)
         testDMATRIX = xgb.DMatrix(testX, missing=naData)
         predictValue = gbdtModel.predict(testDMATRIX)
