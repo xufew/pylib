@@ -83,9 +83,11 @@ class LR():
             pickle.dump(self.model, fileWriter)
         return self.model
 
-    def predict(self, model, testX):
+    def predict(self, testX, model=''):
         '''
         预测
         '''
+        if model == '':
+            model = self.model
         predictValue = model.predict_proba(testX)[:, 1]
         return predictValue

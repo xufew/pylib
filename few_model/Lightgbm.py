@@ -142,12 +142,15 @@ class Lightgbm():
         print(featureIm)
         with open(modelSavePath, 'wb') as fileWriter:
             pickle.dump(lgbModel, fileWriter)
+        self.model = lgbModel
         return lgbModel
 
-    def predict(self, testX, gbmModel):
+    def predict(self, testX, gbmModel=''):
         '''
         预测
         '''
+        if gbmModel == '':
+            gbmModel = self.model
         featureName = gbmModel.featureName
         testX = testX.loc[:, featureName]
         if featureName != list(testX.columns):

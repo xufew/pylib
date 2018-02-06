@@ -161,10 +161,12 @@ class Xgboost():
         featureSeries.sort_values(ascending=False, inplace=True)
         return featureSeries
 
-    def predict(self, testX, gbdtModel):
+    def predict(self, testX, gbdtModel=''):
         '''
         预测
         '''
+        if gbdtModel == '':
+            gbdtModel = self.model
         naData = self.param['naData']
         testX = testX.loc[:, gbdtModel.featureName]
         testX.columns = [str(i) for i in range(len(gbdtModel.featureName))]
